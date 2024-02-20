@@ -40,7 +40,6 @@ public class Fifteenths
             JButton plate = new JButton(" " + i + " ");
             plate.setPreferredSize(new Dimension(100, 100));
             buttons.add(plate);
-            //lol
         }
     }
 
