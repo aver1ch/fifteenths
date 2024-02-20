@@ -1,6 +1,8 @@
 import javax.swing.*;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 // первая, которая считает, сколько ячеек находится не на своём месте
 // вторая, которая считает количество ходов до правильной комбинации
@@ -27,19 +29,21 @@ public class Fifteenths
     {
         JPanel playStation = new JPanel(new GridLayout(4, 4, 5, 5));
         playStation.setBorder(BorderFactory.createTitledBorder("Game"));
-
+        Map<Integer, JButton> buttons = new HashMap<>();
+        createButtons(playStation, buttons);
         frame.getContentPane().add(playStation);
         frame.pack();
         frame.setVisible(true);
     }
 
-    public void createButtons(JPanel playStation, Container buttons)
+    public void createButtons(JPanel playStation, Map<Integer, JButton> buttons)
     {
         for (int i = 1; i <= 15; ++i)
         {
             JButton plate = new JButton(" " + i + " ");
             plate.setPreferredSize(new Dimension(100, 100));
-            buttons.add(plate);
+            buttons.put(i, plate);
+            playStation.add(buttons.get(i));
         }
     }
 
