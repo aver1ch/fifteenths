@@ -6,14 +6,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+// определить соседа
+// счётчик шагов
+// решение двух задачек
+// разные режимы
+
 public class Fifteenths
 {
-    private final JFrame frame = new JFrame("Пятнашки");
-    private JButton emptyPlate = new JButton(" ");
+    private  JFrame frame = new JFrame("Пятнашки");
+    private JButton emptyPlate = new JButton("");
     private List<JButton> buttons = new ArrayList<>();
     private boolean autoPlay = false;
     private int stepsCount = 0;
-
+    private boolean isSolved = true;
     public void window() // cоздаётся окно
     {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -23,6 +28,10 @@ public class Fifteenths
         createPlaystation();
         createScoreTable();
         createModeSelection();
+        while(!isSolved)
+        {
+            
+        }
 
         frame.setVisible(true);
     }
@@ -35,53 +44,54 @@ public class Fifteenths
         frame.getContentPane().add(playStation, BorderLayout.CENTER);
     }
 
-    public void createButtons(JPanel playStation) // создаются кнопки
+    public void createButtons(JPanel playStation)
     {
-        for (int i = 1; i <= 15; ++i)
+        for (int i = 1; i < 16; i++)
         {
             JButton plate = new JButton(" " + i + " ");
             plate.setPreferredSize(new Dimension(100, 100));
-            buttons.add(i - 1, plate);
+            plate.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    int emptyPlateIndex = buttons.indexOf(emptyPlate);
+                    int plateIndex = buttons.indexOf(plate);
+                    if (isNeighbor(emptyPlateIndex, plateIndex))
+                    {
+                        JButton tempButton = emptyPlate;
+                        String tempText = tempButton.getText();
+        
+                        emptyPlate.setText(plate.getText());
+                        plate.setText(tempText);
+                        emptyPlate = plate;
+                        frame.repaint();
+                    }
+                }
+            });
+            buttons.add(plate);
+            playStation.add(plate);
         }
-
         emptyPlate.setPreferredSize(new Dimension(100, 100));
-        buttons.add(emptyPlate);
-        shuffle();
-        for (int i = 0; i <= 15; ++i)
-        {
-            playStation.add(buttons.get(i));
-        }
         playStation.add(emptyPlate);
     }
-
+    
+    private boolean isNeighbor(int indexEmpty, int indexPlate)
+    {
+        return ((indexEmpty + 1 == indexPlate) || (indexEmpty - 1 == indexPlate) || (indexEmpty + 4 == indexPlate) || (indexEmpty - 4 == indexPlate));
+    }
+    
     public void createScoreTable() // создаётся окно счёта
     {
         JPanel scoreTable = new JPanel(new GridLayout(2, 1));
         scoreTable.setBorder(BorderFactory.createTitledBorder("Score"));
 
-        JLabel stepsLabel = new JLabel("Steps: ");
+        JLabel stepsLabel = new JLabel("Steps: " + stepsCount);
         scoreTable.add(stepsLabel);
 
         frame.getContentPane().add(scoreTable, BorderLayout.EAST);
     }
-
-    public void swap()
-    {
-        for(int i = 0; i <= 15; ++i)
-        {
-            if(buttons.get(i).getText() != " ")
-            {
-                buttons.get(i).addActionListener(new ActionListener()
-                {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        
-                    }    
-                });
-            }
-        }
-    }
-
+    
     public void createModeSelection() // окно выбора режима игры
     {
         JPanel modePanel = new JPanel(new FlowLayout());
