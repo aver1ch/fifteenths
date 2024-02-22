@@ -75,12 +75,24 @@ public class Fifteenths
         emptyPlate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                emptyPlate.setText(""); // Обновляем текст emptyPlate на пустую строку
-                emptyPlate.revalidate(); // Перерисовываем кнопку
-                frame.repaint(); // Перерисовываем интерфейс
+                int emptyPlateIndex = buttons.indexOf(emptyPlate);
+                int plateIndex = buttons.indexOf(buttons.get(0)); // Assuming the first plate is the default plate
+                if (isNeighbor(emptyPlateIndex, plateIndex))
+                {
+                    JButton tempButton = emptyPlate;
+                    String tempText = tempButton.getText();
+    
+                    emptyPlate.setText(buttons.get(0).getText());
+                    buttons.get(0).setText(tempText);
+                    emptyPlate = buttons.get(0);
+                    frame.repaint();
+                }
             }
-        });        
-
+        });
+    
+        
+        
+        
         buttons.add(emptyPlate);
         shuffle();
 
