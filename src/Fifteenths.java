@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// определить соседа
 // счётчик шагов
 // решение двух задачек
 // разные режимы
@@ -14,10 +13,10 @@ import java.util.List;
 public class Fifteenths
 {
     private  JFrame frame = new JFrame("Пятнашки");
-    private JButton emptyPlate = new JButton("");
     private List<JButton> buttons = new ArrayList<>();
+    JButton emptyPlate = new JButton();
     private boolean autoPlay = false;
-    private int stepsCount = 0;
+    private static int stepsCount = 0;
     private boolean isSolved = true;
     public void window() // cоздаётся окно
     {
@@ -46,7 +45,7 @@ public class Fifteenths
 
     public void createButtons(JPanel playStation)
     {
-        for (int i = 1; i < 16; i++)
+        for (int i = 0; i < 16; ++i)
         {
             JButton plate = new JButton(" " + i + " ");
             plate.setPreferredSize(new Dimension(100, 100));
@@ -70,15 +69,33 @@ public class Fifteenths
                 }
             });
             buttons.add(plate);
-            playStation.add(plate);
+            
         }
         emptyPlate.setPreferredSize(new Dimension(100, 100));
-        playStation.add(emptyPlate);
+        emptyPlate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                emptyPlate.setText(""); // Обновляем текст emptyPlate на пустую строку
+                emptyPlate.revalidate(); // Перерисовываем кнопку
+                frame.repaint(); // Перерисовываем интерфейс
+            }
+        });        
+
+        buttons.add(emptyPlate);
+        shuffle();
+
+        for(int i = 0; i < 16; ++i)
+        {
+            playStation.add(buttons.get(i));
+        }
     }
     
     private boolean isNeighbor(int indexEmpty, int indexPlate)
     {
-        return ((indexEmpty + 1 == indexPlate) || (indexEmpty - 1 == indexPlate) || (indexEmpty + 4 == indexPlate) || (indexEmpty - 4 == indexPlate));
+        return ((indexEmpty + 1 == indexPlate) 
+             || (indexEmpty - 1 == indexPlate) 
+             || (indexEmpty + 4 == indexPlate) 
+             || (indexEmpty - 4 == indexPlate));
     }
     
     public void createScoreTable() // создаётся окно счёта
