@@ -16,8 +16,9 @@ public class Fifteenths
     private List<JButton> buttons = new ArrayList<>();
     JButton emptyPlate = new JButton();
     private boolean autoPlay = false;
-    private static int stepsCount = 0;
+    private int stepsCount = 0;
     private boolean isSolved = true;
+
     public void window() // cоздаётся окно
     {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -25,8 +26,8 @@ public class Fifteenths
         frame.setSize(700, 700);
 
         createPlaystation();
-        createScoreTable();
         createModeSelection();
+
         while(!isSolved)
         {
             
@@ -47,7 +48,7 @@ public class Fifteenths
     {
         for (int i = 0; i < 16; ++i)
         {
-            JButton plate = new JButton(" " + i + " ");
+            JButton plate = new JButton(" " + (i + 1) + " ");
             plate.setPreferredSize(new Dimension(100, 100));
             plate.addActionListener(new ActionListener()
             {
@@ -69,14 +70,16 @@ public class Fifteenths
                 }
             });
             buttons.add(plate);
-            
         }
+
         emptyPlate.setPreferredSize(new Dimension(100, 100));
-        emptyPlate.addActionListener(new ActionListener() {
+        emptyPlate.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 int emptyPlateIndex = buttons.indexOf(emptyPlate);
-                int plateIndex = buttons.indexOf(buttons.get(0)); // Assuming the first plate is the default plate
+                int plateIndex = buttons.indexOf(buttons.get(0));
                 if (isNeighbor(emptyPlateIndex, plateIndex))
                 {
                     JButton tempButton = emptyPlate;
@@ -89,25 +92,16 @@ public class Fifteenths
                 }
             }
         });
-    
         
-        
-        
+        playStation.add(emptyPlate);
         buttons.add(emptyPlate);
+
         shuffle();
 
         for(int i = 0; i < 16; ++i)
         {
             playStation.add(buttons.get(i));
         }
-    }
-    
-    private boolean isNeighbor(int indexEmpty, int indexPlate)
-    {
-        return ((indexEmpty + 1 == indexPlate) 
-             || (indexEmpty - 1 == indexPlate) 
-             || (indexEmpty + 4 == indexPlate) 
-             || (indexEmpty - 4 == indexPlate));
     }
     
     public void createScoreTable() // создаётся окно счёта
@@ -118,6 +112,17 @@ public class Fifteenths
         JLabel stepsLabel = new JLabel("Steps: " + stepsCount);
         scoreTable.add(stepsLabel);
 
+        JButton newGameButton = new JButton("New game");
+        newGameButton.setPreferredSize(new Dimension(100, 20));
+        newGameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                shuffle();
+                frame.repaint();
+            }
+        });
+        scoreTable.add(newGameButton);
         frame.getContentPane().add(scoreTable, BorderLayout.EAST);
     }
     
@@ -157,5 +162,13 @@ public class Fifteenths
     public void shuffle()
     {
         Collections.shuffle(buttons);
+    }
+
+    private boolean isNeighbor(int indexEmpty, int indexPlate)
+    {
+        return ((indexEmpty + 1 == indexPlate) 
+             || (indexEmpty - 1 == indexPlate) 
+             || (indexEmpty + 4 == indexPlate) 
+             || (indexEmpty - 4 == indexPlate));
     }
 }
