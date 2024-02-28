@@ -1,174 +1,136 @@
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.awt.event.*;
+import java.util.Random;
 
-// счётчик шагов
-// решение двух задачек
-// разные режимы
+public class Fifteenths {
+    public static final JFrame window = new JFrame("Пятнашки");
+    private JButton[] buttons = new JButton[16];
+    private static final Random RANDOM = new Random();
+    private JPanel gamePanel = new JPanel(new GridLayout(4, 4, 0, 0));
+    private JPanel scoreBoardPanel = new JPanel();
 
-public class Fifteenths
-{
-    private  JFrame frame = new JFrame("Пятнашки");
-    private List<JButton> buttons = new ArrayList<>();
-    JButton emptyPlate = new JButton();
-    private boolean autoPlay = false;
-    private int stepsCount = 0;
-    private boolean isSolved = true;
+    int indexOfEmptyButton = 0;
 
-    public void window() // cоздаётся окно
-    {
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
-        frame.setSize(700, 700);
+    public Fifteenths() {
+        //window
+        window.setSize(500, 500);
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setLayout(new BorderLayout());
 
-        createPlaystation();
-        createModeSelection();
+        //buttons
+        drawButtons();
+        //scoreBoard
+        drawScoreTable();
 
-        while(!isSolved)
-        {
-            
-        }
-
-        frame.setVisible(true);
+        window.setVisible(true);
     }
 
-    public void createPlaystation() // создаётся игровая площадка
-    {
-        JPanel playStation = new JPanel(new GridLayout(4, 4, 5, 5));
-        playStation.setBorder(BorderFactory.createTitledBorder("Game"));
-        createButtons(playStation);
-        frame.getContentPane().add(playStation, BorderLayout.CENTER);
+    private void drawScoreTable() {
+        TitledBorder border = BorderFactory.createTitledBorder("Info");
+        scoreBoardPanel.setBorder(border);
+        scoreBoardPanel.setLayout(new GridLayout(5, 1));
+
+        // Создаем кнопку новой игры
+        JButton newGameButton = new JButton("New Game");
+        newGameButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                drawButtons();
+            }
+        });
+        scoreBoardPanel.add(newGameButton);
+
+        window.add(scoreBoardPanel, BorderLayout.NORTH); // Добавляем панель на окно
+        window.pack();
     }
 
-    public void createButtons(JPanel playStation)
+    private void drawButtons()
     {
-        for (int i = 0; i < 16; ++i)
-        {
-            JButton plate = new JButton(" " + (i + 1) + " ");
-            plate.setPreferredSize(new Dimension(100, 100));
-            plate.addActionListener(new ActionListener()
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    int emptyPlateIndex = buttons.indexOf(emptyPlate);
-                    int plateIndex = buttons.indexOf(plate);
-                    if (isNeighbor(emptyPlateIndex, plateIndex))
-                    {
-                        JButton tempButton = emptyPlate;
-                        String tempText = tempButton.getText();
-        
-                        emptyPlate.setText(plate.getText());
-                        plate.setText(tempText);
-                        emptyPlate = plate;
-                        frame.repaint();
+        gamePanel.removeAll();
+        for (int i = 0; i < buttons.length; ++i) {
+            if (i == buttons.length - 1) {
+                buttons[i] = new JButton("");
+                indexOfEmptyButton = i;
+            } else {
+                buttons[i] = new JButton("" + (i + 1));
+            }
+            buttons[i].setPreferredSize(new Dimension(100, 100));
+
+            buttons[i].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JButton clickedButton = (JButton) e.getSource();
+
+                    int clickedIndex = 0;
+                    for (int i = 0; i < buttons.length; i++) {
+                        if (buttons[i] == clickedButton) {
+                            clickedIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (isNeighbor(indexOfEmptyButton, clickedIndex)) {
+                        JButton temp = buttons[clickedIndex];
+                        buttons[clickedIndex] = buttons[indexOfEmptyButton];
+                        buttons[indexOfEmptyButton] = temp;
+
+                        indexOfEmptyButton = clickedIndex;
+
+                        gamePanel.removeAll();
+                        for (JButton button : buttons) {
+                            gamePanel.add(button);
+                        }
+                        gamePanel.revalidate();
+                        gamePanel.repaint();
                     }
                 }
             });
-            buttons.add(plate);
-        }
 
-        emptyPlate.setPreferredSize(new Dimension(100, 100));
-        emptyPlate.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                int emptyPlateIndex = buttons.indexOf(emptyPlate);
-                int plateIndex = buttons.indexOf(buttons.get(0));
-                if (isNeighbor(emptyPlateIndex, plateIndex))
-                {
-                    JButton tempButton = emptyPlate;
-                    String tempText = tempButton.getText();
-    
-                    emptyPlate.setText(buttons.get(0).getText());
-                    buttons.get(0).setText(tempText);
-                    emptyPlate = buttons.get(0);
-                    frame.repaint();
-                }
-            }
-        });
-        
-        playStation.add(emptyPlate);
-        buttons.add(emptyPlate);
+            gamePanel.add(buttons[i]);
+        }
 
         shuffle();
 
-        for(int i = 0; i < 16; ++i)
-        {
-            playStation.add(buttons.get(i));
+        for (int i = 0; i < buttons.length; ++i) {
+            if (buttons[i].getText().equals("")) {
+                indexOfEmptyButton = i;
+            }
+            gamePanel.add(buttons[i]);
+        }
+
+        window.add(gamePanel, BorderLayout.CENTER);
+        window.repaint();
+        window.pack();
+    }
+
+    boolean isWin() {
+        boolean win = false;
+        for (int i = 0; i < buttons.length - 1; ++i) {
+            if (Integer.valueOf(buttons[i].getText()) != i) {
+                win = false;
+            } else {
+                win = true;
+            }
+        }
+        return win;
+    }
+
+    private boolean isNeighbor(int indexEmpty, int indexPlate) {
+        return ((indexEmpty + 1 == indexPlate)
+                || (indexEmpty - 1 == indexPlate)
+                || (indexEmpty + 4 == indexPlate)
+                || (indexEmpty - 4 == indexPlate));
+    }
+
+    private void shuffle() {
+        int n = buttons.length;
+
+        while (n > 1) {
+            int r = RANDOM.nextInt(n--);
+            JButton tmp = buttons[r];
+            buttons[r] = buttons[n];
+            buttons[n] = tmp;
         }
     }
-    
-    public void createScoreTable() // создаётся окно счёта
-    {
-        JPanel scoreTable = new JPanel(new GridLayout(2, 1));
-        scoreTable.setBorder(BorderFactory.createTitledBorder("Score"));
 
-        JLabel stepsLabel = new JLabel("Steps: " + stepsCount);
-        scoreTable.add(stepsLabel);
-
-        JButton newGameButton = new JButton("New game");
-        newGameButton.setPreferredSize(new Dimension(100, 20));
-        newGameButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                shuffle();
-                frame.repaint();
-            }
-        });
-        scoreTable.add(newGameButton);
-        frame.getContentPane().add(scoreTable, BorderLayout.EAST);
-    }
-    
-    public void createModeSelection() // окно выбора режима игры
-    {
-        JPanel modePanel = new JPanel(new FlowLayout());
-        JLabel modeLabel = new JLabel("Choose Mode: ");
-        JButton manualModeButton = new JButton("Manual");
-        JButton autoModeButton = new JButton("Auto");
-
-        manualModeButton.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                autoPlay = false; // Устанавливаем режим игры вручную
-            }
-        });
-
-        /*autoModeButton.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                autoPlay = true; // Устанавливаем режим игры автоматически
-                autoPlay(); // Запускаем автоматическую игру
-            }
-        });*/
-
-        modePanel.add(modeLabel);
-        modePanel.add(manualModeButton);
-        modePanel.add(autoModeButton);
-
-        frame.getContentPane().add(modePanel, BorderLayout.NORTH);
-    }
-
-    public void shuffle()
-    {
-        Collections.shuffle(buttons);
-    }
-
-    private boolean isNeighbor(int indexEmpty, int indexPlate)
-    {
-        return ((indexEmpty + 1 == indexPlate) 
-             || (indexEmpty - 1 == indexPlate) 
-             || (indexEmpty + 4 == indexPlate) 
-             || (indexEmpty - 4 == indexPlate));
-    }
 }
