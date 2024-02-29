@@ -1,5 +1,7 @@
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.JTextComponent;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
@@ -10,8 +12,11 @@ public class Fifteenths {
     private static final Random RANDOM = new Random();
     private JPanel gamePanel = new JPanel(new GridLayout(4, 4, 0, 0));
     private JPanel scoreBoardPanel = new JPanel();
+    private JButton newGameButton = new JButton("Новая игра");
+    JLabel correctPositions;
 
-    int indexOfEmptyButton = 0;
+    private int indexOfEmptyButton = 0;
+    private int steps = 0;
 
     public Fifteenths() {
         //window
@@ -28,20 +33,25 @@ public class Fifteenths {
     }
 
     private void drawScoreTable() {
-        TitledBorder border = BorderFactory.createTitledBorder("Info");
+        scoreBoardPanel.removeAll();
+        TitledBorder border = BorderFactory.createTitledBorder("Счёт");
         scoreBoardPanel.setBorder(border);
         scoreBoardPanel.setLayout(new GridLayout(5, 1));
+        JLabel score = new JLabel("Шаги:" + steps);
+        JLabel correctPositions = new JLabel("Правильные позиции:" + countOfGoodDestination());
 
-        // Создаем кнопку новой игры
-        JButton newGameButton = new JButton("New Game");
         newGameButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                steps = 0;
+                drawScoreTable();
                 drawButtons();
             }
         });
-        scoreBoardPanel.add(newGameButton);
 
-        window.add(scoreBoardPanel, BorderLayout.NORTH); // Добавляем панель на окно
+        scoreBoardPanel.add(newGameButton);
+        scoreBoardPanel.add(score);
+        scoreBoardPanel.add(correctPositions);
+        window.add(scoreBoardPanel, BorderLayout.NORTH);
         window.pack();
     }
 
@@ -60,7 +70,6 @@ public class Fifteenths {
             buttons[i].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JButton clickedButton = (JButton) e.getSource();
-
                     int clickedIndex = 0;
                     for (int i = 0; i < buttons.length; i++) {
                         if (buttons[i] == clickedButton) {
@@ -70,6 +79,12 @@ public class Fifteenths {
                     }
 
                     if (isNeighbor(indexOfEmptyButton, clickedIndex)) {
+                        scoreBoardPanel.removeAll();
+                        ++steps;
+                        JLabel score = new JLabel("Шаги:" + steps);
+                        scoreBoardPanel.add(newGameButton);
+                        scoreBoardPanel.add(score);
+
                         JButton temp = buttons[clickedIndex];
                         buttons[clickedIndex] = buttons[indexOfEmptyButton];
                         buttons[indexOfEmptyButton] = temp;
@@ -80,8 +95,15 @@ public class Fifteenths {
                         for (JButton button : buttons) {
                             gamePanel.add(button);
                         }
+
+                        JLabel correctPositions = new JLabel("Правильные позиции:" + countOfGoodDestination());
+                        scoreBoardPanel.add(correctPositions);
+
                         gamePanel.revalidate();
                         gamePanel.repaint();
+                        scoreBoardPanel.revalidate();
+                        scoreBoardPanel.repaint();
+
                     }
                 }
             });
@@ -103,17 +125,17 @@ public class Fifteenths {
         window.pack();
     }
 
-    boolean isWin() {
-        boolean win = false;
-        for (int i = 0; i < buttons.length - 1; ++i) {
-            if (Integer.valueOf(buttons[i].getText()) != i) {
-                win = false;
-            } else {
-                win = true;
+    int countOfGoodDestination() {
+        int counterOfGoodDestination = 0;
+        for (int i = 0; i < buttons.length; ++i) {
+            String buttonText = buttons[i].getText();
+            if (!buttonText.isEmpty() && Integer.valueOf(buttonText) == i) {
+                ++counterOfGoodDestination;
             }
         }
-        return win;
+        return counterOfGoodDestination;
     }
+    
 
     private boolean isNeighbor(int indexEmpty, int indexPlate) {
         return ((indexEmpty + 1 == indexPlate)
