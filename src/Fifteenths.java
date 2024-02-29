@@ -129,7 +129,7 @@ public class Fifteenths {
         int counterOfGoodDestination = 0;
         for (int i = 0; i < buttons.length; ++i) {
             String buttonText = buttons[i].getText();
-            if (!buttonText.isEmpty() && Integer.valueOf(buttonText) == i) {
+            if (!buttonText.isEmpty() && Integer.valueOf(buttonText) == i + 1) {
                 ++counterOfGoodDestination;
             }
         }
