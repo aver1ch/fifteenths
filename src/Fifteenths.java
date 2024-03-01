@@ -1,6 +1,5 @@
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.text.JTextComponent;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,7 +12,6 @@ public class Fifteenths {
     private JPanel gamePanel = new JPanel(new GridLayout(4, 4, 0, 0));
     private JPanel scoreBoardPanel = new JPanel();
     private JButton newGameButton = new JButton("Новая игра");
-    JLabel correctPositions;
 
     private int indexOfEmptyButton = 0;
     private int steps = 0;
@@ -38,7 +36,7 @@ public class Fifteenths {
         scoreBoardPanel.setBorder(border);
         scoreBoardPanel.setLayout(new GridLayout(5, 1));
         JLabel score = new JLabel("Шаги:" + steps);
-        JLabel correctPositions = new JLabel("Правильные позиции:" + countOfGoodDestination());
+        JLabel correctPositions = new JLabel("Правильные позиции:" + countOfGoodDestination(buttons));
 
         newGameButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -81,7 +79,8 @@ public class Fifteenths {
                     if (isNeighbor(indexOfEmptyButton, clickedIndex)) {
                         scoreBoardPanel.removeAll();
                         ++steps;
-                        JLabel score = new JLabel("Шаги:" + steps);
+                        int heuristicValue = heuristicFunction(buttons);
+                        JLabel score = new JLabel("Шаги:" + steps + "    " + "Шагов до победы:" + heuristicValue + "       " + "Правильные позиции:" + countOfGoodDestination(buttons));
                         scoreBoardPanel.add(newGameButton);
                         scoreBoardPanel.add(score);
 
@@ -96,8 +95,16 @@ public class Fifteenths {
                             gamePanel.add(button);
                         }
 
-                        JLabel correctPositions = new JLabel("Правильные позиции:" + countOfGoodDestination());
-                        scoreBoardPanel.add(correctPositions);
+                        JButton autoPlayButton = new JButton("Автоигра");
+                        autoPlayButton.setPreferredSize(new Dimension(100, 20));
+                        autoPlayButton.addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e)
+                            {
+                                autoPlay();
+                            }
+                        });
+                        scoreBoardPanel.add(autoPlayButton);
+
 
                         gamePanel.revalidate();
                         gamePanel.repaint();
@@ -125,7 +132,7 @@ public class Fifteenths {
         window.pack();
     }
 
-    int countOfGoodDestination() {
+    int countOfGoodDestination(JButton[] buttons) {
         int counterOfGoodDestination = 0;
         for (int i = 0; i < buttons.length; ++i) {
             String buttonText = buttons[i].getText();
@@ -135,7 +142,6 @@ public class Fifteenths {
         }
         return counterOfGoodDestination;
     }
-    
 
     private boolean isNeighbor(int indexEmpty, int indexPlate) {
         return ((indexEmpty + 1 == indexPlate)
@@ -155,4 +161,100 @@ public class Fifteenths {
         }
     }
 
+    private void autoPlay() {
+        int heuristicValue = heuristicFunction(buttons);
+    
+        while (heuristicValue > 0) {
+            int minHeuristicValue = Integer.MAX_VALUE;
+            int nextIndex = -1;
+            int indexOfEmptyButton = -1;
+    
+            // Найдем индекс пустой кнопки
+            for (int i = 0; i < buttons.length; i++) {
+                if (buttons[i].getText().isEmpty()) {
+                    indexOfEmptyButton = i;
+                    break;
+                }
+            }
+    
+            for (int i = 0; i < buttons.length; i++) {
+                if (isNeighbor(indexOfEmptyButton, i)) {
+                    JButton temp = buttons[i];
+                    buttons[i] = buttons[indexOfEmptyButton];
+                    buttons[indexOfEmptyButton] = temp;
+    
+                    int newHeuristicValue = heuristicFunction(buttons);
+                    if (newHeuristicValue < minHeuristicValue) {
+                        minHeuristicValue = newHeuristicValue;
+                        nextIndex = i;
+                    }
+    
+                    // Вернем обратно на место
+                    temp = buttons[i];
+                    buttons[i] = buttons[indexOfEmptyButton];
+                    buttons[indexOfEmptyButton] = temp;
+
+                    gamePanel.removeAll();
+                    for (JButton button : buttons) {
+                        gamePanel.add(button);
+                    }
+                    gamePanel.revalidate();
+                    gamePanel.repaint();
+                    }
+            }
+    
+            if (nextIndex != -1) {
+                JButton temp = buttons[nextIndex];
+                buttons[nextIndex] = buttons[indexOfEmptyButton];
+                buttons[indexOfEmptyButton] = temp;
+    
+                // Обновляем значение эвристической функции
+                heuristicValue = minHeuristicValue;
+    
+                // Обновляем интерфейс
+                gamePanel.removeAll();
+                for (JButton button : buttons) {
+                    gamePanel.add(button);
+                }
+                
+                scoreBoardPanel.repaint();
+                gamePanel.revalidate();
+                gamePanel.repaint();
+            } else {
+                // Если не нашли более хорошего хода, прерываем цикл
+                break;
+            }
+        }
+    }
+    
+    
+        
+    private int heuristicFunction(JButton[] buttons) {
+        int heuristicValue = 0;
+
+        // Считаем количество ходов, необходимых для перемещения каждой плитки на ее правильное место
+        for (int i = 0; i < buttons.length; ++i) {
+            String buttonText = buttons[i].getText();
+            if (!buttonText.isEmpty()) {
+                int destinationIndex = Integer.valueOf(buttonText) - 1;
+                int currentDistance = Math.abs(i - destinationIndex);
+                int horizontalDistance = currentDistance % 4;
+                int verticalDistance = currentDistance / 4;
+
+                // Считаем количество ходов, необходимых для перемещения плитки по горизонтали
+                if (horizontalDistance > 0) {
+                    heuristicValue += horizontalDistance;
+                }
+
+                // Считаем количество ходов, необходимых для перемещения плитки по вертикали
+                if (verticalDistance > 0) {
+                    heuristicValue += verticalDistance;
+                }
+            }
+        }
+
+        return heuristicValue;
+    }
+
 }
+    
