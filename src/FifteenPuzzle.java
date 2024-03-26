@@ -38,7 +38,6 @@ public class FifteenPuzzle {
 		}
 		display_width=Integer.toString(cnt).length();
 		
-		// init blank
 		blank = new TilePos(DIMS-1,DIMS-1);
 		tiles[blank.x][blank.y]=0;
 	}
@@ -209,12 +208,6 @@ public class FifteenPuzzle {
 		return numberMisplacedTiles() == 0;
 	}
 	
-	
-	/**
-	 * another A* heuristic.
-	 * Total manhattan distance (L1 norm) from each non-blank tile to its correct position
-	 * @return
-	 */
 	public int manhattanDistance() {
 		int sum=0;
 		for(TilePos p: allTilePos()) {
@@ -228,10 +221,6 @@ public class FifteenPuzzle {
 		return sum;
 	}
 
-	/**
-	 * distance heuristic for A*
-	 * @return
-	 */
 	public int estimateError() {
 		return this.numberMisplacedTiles();
 		//return 5*this.numberMisplacedTiles(); // finds a non-optimal solution faster

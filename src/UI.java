@@ -64,9 +64,9 @@ public class UI extends JFrame {
     
         add(controlPanel, BorderLayout.NORTH);
         add(puzzlePanel, BorderLayout.CENTER);
-        add(scoreBoardPanel, BorderLayout.SOUTH); // Добавляем scoreBoardPanel
+        add(scoreBoardPanel, BorderLayout.SOUTH);
     
-        setVisible(true); // Устанавливаем видимость до вызова solveAndShow
+        setVisible(true);
     }
 
     private void initButtons() {
@@ -98,7 +98,7 @@ public class UI extends JFrame {
                     buttons[i][j].setBackground(Color.RED);
                 } else {
                     buttons[i][j].setOpaque(false);
-                    buttons[i][j].setForeground(Color.BLACK); // Возвращаем черный цвет текста для остальных кнопок
+                    buttons[i][j].setForeground(Color.BLACK);
                 }
             }
         }
@@ -157,19 +157,19 @@ public class UI extends JFrame {
         puzzle.shuffle(70);
         steps = 0;
         updatePuzzlePanel();
-        updateScorePanel(); // Добавлено обновление панели счёта
-        stopDemonstration = false; // Разрешение автоигры после обновления поля
+        updateScorePanel();
+        stopDemonstration = false;
     }
 
     private void updateScorePanel() {
-        scoreBoardPanel.removeAll(); // Очищаем панель счета перед обновлением
+        scoreBoardPanel.removeAll();
         int goodDestinationCount = countOfGoodDestination(buttons);
         JLabel correctPositions = new JLabel("Фишек на своих местах: " + goodDestinationCount);
-        JLabel stepsLabel = new JLabel("Количество ходов: " + steps); // Добавляем подсчет ходов
-        JLabel manhattanLabel = new JLabel("Манхэттенское расстояние: " + puzzle.manhattanDistance()); // Добавляем манхэттенское расстояние
+        JLabel stepsLabel = new JLabel("Количество ходов: " + steps);
+        JLabel manhattanLabel = new JLabel("Манхэттенское расстояние: " + puzzle.manhattanDistance());
         scoreBoardPanel.add(correctPositions);
-        scoreBoardPanel.add(stepsLabel); // Добавляем метку с количеством ходов
-        scoreBoardPanel.add(manhattanLabel); // Добавляем метку с манхэттенским расстоянием
+        scoreBoardPanel.add(stepsLabel);
+        scoreBoardPanel.add(manhattanLabel);
         pack();
         scoreBoardPanel.revalidate();
         scoreBoardPanel.repaint();
@@ -185,7 +185,7 @@ public class UI extends JFrame {
                         puzzle.move(clickedPos);
                         steps++;
                         updatePuzzlePanel();
-                        updateScorePanel(); // Обновляем панель счета
+                        updateScorePanel();
                         checkCompletion();
                     }
                     return;
